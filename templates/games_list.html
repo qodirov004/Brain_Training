@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Games - Brain Training{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="page-header purple-gradient">
+    <div class="container">
+        <div class="page-header-content">
+            <h1>Brain Training O'yinlari</h1>
+            <p>Miyyangizni mashq qilish va kognitiv qobiliyatingizni yaxshilash uchun o'yinni tanlang!</p>
+        </div>
+    </div>
+</header>
+
+<!-- Games Grid -->
+<section class="games-section">
+    <div class="container">
+        <div class="games-grid">
+            <!-- Memory Game -->
+            <div class="game-card">
+                <div class="game-card-image memory">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg>
+                </div>
+                <div class="game-card-content">
+                    <h2>Memory Game</h2>
+                    <p>Karta juftlarini birlashtirish orqali xotirangizni sinab ko'ring va yaxshilang. Eng qisqa vaqt ichida barcha mos juftlarni toping. Bu juda qiziqali.</p>
+                    <div class="game-skills">
+                        <span class="skill-tag">Xotirani rivojlantirish</span>
+                        <span class="skill-tag">Konsentratsiya rivojlantirish</span>
+                        <span class="skill-tag">Vizual xotira</span>
+                    </div>
+                    <div class="game-card-footer">
+                        <a href="{% url 'memory_game' %}" class="btn btn-primary">Boshlash</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Speed Math Game -->
+            <div class="game-card">
+                <div class="game-card-image math">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div class="game-card-content">
+                    <h2>Speed Math</h2>
+                    <p>Vizual tanib olish testini o'tkazing va Speed Math o'yinimiz yordamida aqliy hisoblash qobiliyatingizni yaxshilang. Muammolarni tez va aniq hal qiling.</p>
+                    <div class="game-skills">
+                        <span class="skill-tag">Aqliy Matematika</span>
+                        <span class="skill-tag">Tezkor Fikrlash</span>
+                        <span class="skill-tag">Aniqlik</span>
+                    </div>
+                    <div class="game-card-footer">
+                        <a href="{% url 'speed_math' %}" class="btn btn-primary">Boshlash</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reaction Test -->
+            <div class="game-card">
+                <div class="game-card-image reaction">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                </div>
+                <div class="game-card-content">
+                    <h2>Reaction Test</h2>
+                    <p>Reaksiya vaqtingizni sinab ko'ring va yaxshilang. Vizual ogohlantirishlarga imkon qadar tezroq javob bering va muvaffaqiyatingizni kuzatib boring</p>
+                    <div class="game-skills">
+                        <span class="skill-tag">Reaksiya vaqti</span>
+                        <span class="skill-tag">Diqqat</span>
+                        <span class="skill-tag">Qo'l - ko'zni muvoffiqlashtirish</span>
+                    </div>
+                    <div class="game-card-footer">
+                        <a href="{% url 'reaction_test' %}" class="btn btn-primary">Boshlash</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Game Results -->
+<section class="results-section">
+    <div class="container">
+        <div class="results-header">
+            <h2>Kuzatish</h2>
+            <p>O'yin natijalari ko'ring va vaqt o'tishi bilan qanday yaxshilanishingizni ko'ring</p>
+            <a href="{% url 'game_results_list' %}" class="btn btn-outline">Barcha natijalarni ko'rish</a>
+        </div>
+    </div>
+</section>
+
+<!-- Coming Soon -->
+<section class="coming-soon-section">
+    <div class="container">
+        <div class="coming-soon-content">
+            <h2>Tez Orada Boshqa O'yinlar</h2>
+            <p>Turli kognitiv qobiliyatlarni yaxshilash ga yordam berish uchun biz doimiy ravishda yangi Brain Training o'yinlarini ishlab chiqamiz.</p>
+            <div class="coming-soon-games">
+                <div class="coming-soon-game">
+                    <div class="coming-soon-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                    </div>
+                    <h3>Sound Memory</h3>
+                    <p>Ovoz namunalarini eslab qolish va takrorlash orqali eshitish xotirangizni sinab ko'ring.</p>
+                </div>
+                <div class="coming-soon-game">
+                    <div class="coming-soon-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <h3>Sequence Recall</h3>
+                    <p>Operativ xotirani kuchaytirish uchun tobora murakkablashib borayotgan ketma-ketlikni yodlang va takrorlang.</p>
+                </div>
+                <div class="coming-soon-game">
+                    <div class="coming-soon-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12H2"></path><path d="M5 12V6.5a2.5 2.5 0 0 1 5 0V12"></path><path d="M14 12V6.5a2.5 2.5 0 0 1 5 0V12"></path><path d="M5 16v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"></path></svg>
+                    </div>
+                    <h3>Word Scramble</h3>
+                    <p>So'zlarni shakllantirish va va so'z boyligingiz va til ko'rikmalaringizni yaxshilash uchun harflarni oching.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

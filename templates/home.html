@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Brain Training Games - Kognitiv Qobiliyatingizni Yaxshilang{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Miyyangizni Mashq qiling, Ongingizni kuchaytiring</h1>
+            <p>Xotirani yaxshilash uchun mo'ljallangan miyani o'rgatish o'yinlari to'plamimiz bilan kognitiv qobiliyatlaaringizni oshiring, matematika qobiliyatlari va reaksiya vaqti.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'games_list' %}" class="btn btn-primary btn-lg">O'ynashni Boshlash</a>
+                <a href="{% url 'about' %}" class="btn btn-outline">Batafsil Ma'lumot</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <path d="M330,200 C350,220 370,240 400,250 C430,240 450,220 470,200" fill="none" stroke="#a78bfa"
+                stroke-width="3" stroke-dasharray="5,5" />
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">Kognitiv Qobiliyatingizni Oshiring</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon memory">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z">
+                        </path>
+                        <path
+                            d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z">
+                        </path>
+                    </svg>
+                </div>
+                <h3>Improve Memory</h3>
+                <p>Xotira o'yinimiz yordamida xotirangizni yaxshilang. Karta juftlarini moslang va vaqt o'tishi bilan muvaffaqiyatingizni kuzatib boring.</p>
+                <a href="{% url 'memory_game' %}" class="btn btn-outline">Memory Game o'yini</a>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon math">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h3>Sharpen Math Skills</h3>
+                <p>Tez matematika o'yinimiz bilan aqliy hisoblsh qobiliyatingizni sinab ko'rng va yaxshilang. Muammolarni tez va qaniq hal qiling.`</p>
+                <a href="{% url 'speed_math' %}" class="btn btn-outline">Speed Math o'yini</a>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon reaction">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                    </svg>
+                </div>
+                <h3>Test Reaction Time</h3>
+                <p>Reaction test o'yinimiz bilan reaksiya vaqtingizni o'lchang va yaxshilang. Vizual ogohlantirishlarga tez javob bering.</p>
+                <a href="{% url 'reaction_test' %}" class="btn btn-outline">Reaction Test o'yini</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section">
+    <div class="container">
+        <div class="benefits-content">
+            <div class="benefits-text">
+                <h2>Why Train Your Brain?</h2>
+                <ul class="benefits-list">
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>Kognitiv funksiya va aqliy chaqqonlikni yaxshilang.</span>
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>Xotirada saqlash va eslab qolishni kuchaytiring.</span>
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>Muammolarni hal qilish ko'nikmalarini oshiring.</span>
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>Diqqat va e'ribor darajangizni oshiring.</span>
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span>Taraqqaiyotingizni kuzatib boring va vaqt o'tishi bilan yaxshilanishini ko'ring.</span>
+                    </li>
+                </ul>
+                <a href="{% url 'games_list' %}" class="btn btn-primary">Mashlarni hoziroq boshlash</a>
+            </div>
+            <div class="benefits-image">
+                <img src="/static/images/benefits-illustration.svg" alt="Brain Training Benefits">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Miyangizni mashq qilishga tayyormisiz?</h2>
+            <p>Miyani mashq qildiruvchi o'yinlarimiz yordamida kognitiv qobiliyatlarini yaxshilayotgan minglab foydalanuvchilarga qo'shiling.</p>
+            <div class="cta-buttons">
+                {% if user.is_authenticated %}
+                <a href="{% url 'games_list' %}" class="btn btn-primary btn-lg">O'yinni Boshlash</a>
+                <a href="{% url 'profile' %}" class="btn btn-outline">Muvaffaqiyatingizni ko'rish</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Ro'yxatdan o'tish bepull</a>
+                <a href="{% url 'login' %}" class="btn btn-outline">Kirish</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

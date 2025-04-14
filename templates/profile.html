@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Sizning Hisobingiz - Brain Training{% endblock %}
+
+{% block content %}
+<header class="profile-header purple-gradient">
+    <div class="container">
+        <div class="profile-header-content">
+            <h1>Sizning hisobingiz</h1>
+            <p>Miya mashg'ulotlari natijalarini ko'rish va boshqarish</p>
+        </div>
+    </div>
+</header>
+
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-grid">
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h3>Hisob M'lumotlari</h3>
+                </div>
+                <div class="profile-card-body">
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'profile' %}" class="profile-form">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="username">Foydalanuvchi nomi</label>
+                            <input type="text" id="username" value="{{ user.username }}" readonly>
+                            <small>Foydalanuvchi nomini o'zgartirib bo'lmaydi</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" value="{{ email }}">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Hisobni yangilash</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h3>O'yin Ma'lumotlari</h3>
+                </div>
+                <div class="profile-card-body">
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <h4>Umumiy O'yinlar</h4>
+                            <p class="stat-number">{{ total_games }}</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>Memory  o'yini</h4>
+                            <p class="stat-number">{{ memory_count }}</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>Speed Math</h4>
+                            <p class="stat-number">{{ speed_math_count }}</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>Reaction Tests</h4>
+                            <p class="stat-number">{{ reaction_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="recent-results">
+            <h2>So'ngi Natijalar</h2>
+            
+            <div class="results-card">
+                <div class="results-card-header">
+                    <h3>Memory Game</h3>
+                </div>
+                <div class="results-card-body">
+                    {% if memory_results %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vaqti</th>
+                                <th>Harakatlar</th>
+                                <th>Daraja</th>
+                                <th>Sana</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in memory_results %}
+                            <tr>
+                                <td>{{ result.time }}</td>
+                                <td>{{ result.moves }}</td>
+                                <td>{{ result.difficulty|title }}</td>
+                                <td>{{ result.created_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="no-results">Memory Game natijalari hali mavjud emas. <a href="{% url 'memory_game' %}">Hoziroq o'yinni boshlang!</a></p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="results-card">
+                <div class="results-card-header">
+                    <h3>Speed Math</h3>
+                </div>
+                <div class="results-card-body">
+                    {% if speed_math_results %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Ball</th>
+                                <th>Aniqlik</th>
+                                <th>Daraja</th>
+                                <th>Amal</th>
+                                <th>Sana</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in speed_math_results %}
+                            <tr>
+                                <td>{{ result.score }}</td>
+                                <td>{{ result.accuracy }}%</td>
+                                <td>{{ result.difficulty|title }}</td>
+                                <td>{{ result.operation|title }}</td>
+                                <td>{{ result.created_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="no-results">Speed Math natijalari hali mavjud emas. <a href="{% url 'speed_math' %}">Hoziroq o'yinni boshlang!</a></p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="results-card">
+                <div class="results-card-header">
+                    <h3>Reaction Test</h3>
+                </div>
+                <div class="results-card-body">
+                    {% if reaction_results %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Eng qisqa vaqt (ms)</th>
+                                <th>O'rtacha vaqt (ms)</th>
+                                <th>Urinishlar</th>
+                                <th>Sana</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in reaction_results %}
+                            <tr>
+                                <td>{{ result.reaction_time }}</td>
+                                <td>{{ result.average_time }}</td>
+                                <td>{{ result.attempts }}</td>
+                                <td>{{ result.created_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="no-results">Reaction Test natijalari hali mavjud emas. <a href="{% url 'reaction_test' %}">Hoziroq o'yinni boshlang!</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

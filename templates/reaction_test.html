@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+
+{% block title %}Reaction Test - Brain Training{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Additional styles specific to reaction test */
+    .reaction-area {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        background-color: var(--red-500);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        user-select: none;
+    }
+    
+    .reaction-area.waiting {
+        background-color: var(--green-500);
+    }
+    
+    .reaction-area.ready {
+        background-color: var(--gray-200);
+        color: var(--gray-700);
+    }
+    
+    .reaction-results {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .result-box {
+        background-color: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .result-box h3 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        color: var(--gray-500);
+    }
+    
+    .result-box p {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .result-box p.unit {
+        font-size: 1rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+    }
+    
+    .attempts-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .attempt-item {
+        background-color: white;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .attempt-item.best {
+        background-color: var(--green-100);
+        border: 1px solid var(--green-300);
+    }
+    
+    .attempt-item.worst {
+        background-color: var(--red-100);
+        border: 1px solid var(--red-300);
+    }
+    
+    .instructions {
+        background-color: white;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .instructions h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .instructions ol {
+        padding-left: 1.5rem;
+        margin-bottom: 0;
+    }
+    
+    .instructions li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .instructions li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .welcome-message {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+    
+    .welcome-message svg {
+        margin-bottom: 1.5rem;
+        color: var(--purple-500);
+    }
+    
+    .welcome-message h2 {
+        margin-bottom: 1rem;
+    }
+    
+    .welcome-message p {
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .hidden {
+        display: none;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Display messages if any -->
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Header -->
+<header class="game-header purple-gradient">
+    <div class="container">
+        <div class="game-header-content">
+            <a href="{% url 'games_list' %}" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+            </a>
+            <div>
+                <h1><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> Reaction Test</h1>
+                <p>Reaksiya vaqtingizni sinab ko'ring va yaxshilang. Vizual ogohlantirishlarga imkon qadar tezroq javob bering va Natijalaringizni kuzatib boring.</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Game Area -->
+<main class="container game-container">
+    <!-- Game Board -->
+    <div id="game-board" class="game-board hidden">
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>Reaction Test qanday o'ynaladi</h3>
+            <ol>
+                <li>Qizil quti yashil rangga aylanguncha kuting.</li>
+                <li>Yashil rangga aylanishi bilan uni iloji boricha tezroq bosing.</li>
+                <li>Sizning reaksiyangiz vaqti millisekundlarda ko'rsatiladi.</li>
+                <li>O'rtacha reaksiya vaqtingizni olish uchuin 5 ta urunishni bajaring.</li>
+                <li>Agar siz juda erta bossangiz, noto'g'ri boshlash haqida ogohlantirish olasiz.</li>
+            </ol>
+        </div>
+        
+        <!-- Reaction Area -->
+        <div id="reaction-area" class="reaction-area">
+            <span id="reaction-text">Boshlash</span>
+        </div>
+        
+        <!-- Results -->
+        <div id="results-container" class="results-container hidden">
+            <div class="reaction-results">
+                <div class="result-box">
+                    <h3>Eng Qisqa Vaqt</h3>
+                    <p id="best-time">0</p>
+                    <p class="unit">milliseconds</p>
+                </div>
+                <div class="result-box">
+                    <h3>O'rtacha Vaqt</h3>
+                    <p id="average-time">0</p>
+                    <p class="unit">milliseconds</p>
+                </div>
+                <div class="result-box">
+                    <h3>Urinishlar</h3>
+                    <p id="attempts-count">0/5</p>
+                    <p class="unit">Tugallandi</p>
+                </div>
+            </div>
+            
+            <h3>Siznign urinishlaringiz</h3>
+            <div id="attempts-list" class="attempts-list">
+                <!-- Attempts will be added here dynamically -->
+            </div>
+            
+            <!-- Save Score Form - Direct POST without forms.py -->
+            <form action="{% url 'save_reaction_test' %}" method="post" class="save-score-form hidden" id="save-form">
+                {% csrf_token %}
+                <input type="hidden" name="game_name" value="Reaction Test">
+                <input type="hidden" id="form-reaction-time" name="reaction_time" value="">
+                <input type="hidden" id="form-attempts" name="attempts" value="">
+                <input type="hidden" id="form-average-time" name="average_time" value="">
+                
+                <div class="form-actions">
+                    <button type="button" id="try-again" class="btn btn-outline">Qayta Urinish</button>
+                    <button type="submit" id="save-score" class="btn btn-purple">Natijalarni Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Welcome Message -->
+    <div id="welcome-message" class="welcome-message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+        <h2>Reaction Test o'yiniga xush kelibsiz!</h2>
+        <p>Rang o'zgarganda imkon qadar tezroq bosish orqali reaksiya vaqtingizni sinab ko'ring. O'rtacha vaqtingizni olish uchun 5 ta urinishni barajaring</p>
+        <button id="welcome-start" class="btn btn-purple btn-lg">Testni Boshlash</button>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Game variables
+        let gameStarted = false;
+        let waitingForReaction = false;
+        let reactionStartTime;
+        let reactionTimes = [];
+        let bestTime = Infinity;
+        let averageTime = 0;
+        let timeoutId;
+        let falseStart = false;
+        
+        // DOM elements
+        const gameBoard = document.getElementById('game-board');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const welcomeStartBtn = document.getElementById('welcome-start');
+        const reactionArea = document.getElementById('reaction-area');
+        const reactionText = document.getElementById('reaction-text');
+        const resultsContainer = document.getElementById('results-container');
+        const bestTimeDisplay = document.getElementById('best-time');
+        const averageTimeDisplay = document.getElementById('average-time');
+        const attemptsCountDisplay = document.getElementById('attempts-count');
+        const attemptsList = document.getElementById('attempts-list');
+        const tryAgainBtn = document.getElementById('try-again');
+        const saveForm = document.getElementById('save-form');
+        
+        // Form elements
+        const formReactionTime = document.getElementById('form-reaction-time');
+        const formAttempts = document.getElementById('form-attempts');
+        const formAverageTime = document.getElementById('form-average-time');
+        
+        // Start test button
+        welcomeStartBtn.addEventListener('click', startTest);
+        
+        // Reaction area click
+        reactionArea.addEventListener('click', handleReactionClick);
+        
+        // Try again button
+        tryAgainBtn.addEventListener('click', resetTest);
+        
+        // Start test function
+        function startTest() {
+            // Hide welcome message, show game board
+            welcomeMessage.classList.add('hidden');
+            gameBoard.classList.remove('hidden');
+            
+            // Reset test
+            resetTest();
+            
+            // Set initial state
+            gameStarted = true;
+            reactionArea.className = 'reaction-area';
+            reactionText.textContent = 'Click to start';
+        }
+        
+        // Reset test function
+        function resetTest() {
+            // Clear timeout if any
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            
+            // Reset variables
+            gameStarted = true;
+            waitingForReaction = false;
+            falseStart = false;
+            reactionTimes = [];
+            bestTime = Infinity;
+            averageTime = 0;
+            
+            // Reset displays
+            reactionArea.className = 'reaction-area';
+            reactionText.textContent = 'Click to start';
+            resultsContainer.classList.add('hidden');
+            saveForm.classList.add('hidden');
+            
+            // Clear attempts list
+            attemptsList.innerHTML = '';
+            
+            // Update attempts count
+            updateAttemptsCount();
+        }
+        
+        // Handle reaction area click
+        function handleReactionClick() {
+            if (!gameStarted) return;
+            
+            if (!waitingForReaction) {
+                // Start waiting for reaction
+                startWaiting();
+            } else {
+                // Record reaction time
+                const reactionTime = Date.now() - reactionStartTime;
+                reactionTimes.push(reactionTime);
+                
+                // Update best time
+                if (reactionTime < bestTime) {
+                    bestTime = reactionTime;
+                }
+                
+                // Calculate average time
+                averageTime = Math.round(reactionTimes.reduce((sum, time) => sum + time, 0) / reactionTimes.length);
+                
+                // Update displays
+                bestTimeDisplay.textContent = bestTime;
+                averageTimeDisplay.textContent = averageTime;
+                
+                // Add attempt to list
+                addAttemptToList(reactionTime);
+                
+                // Update attempts count
+                updateAttemptsCount();
+                
+                // Check if test is complete
+                if (reactionTimes.length >= 5) {
+                    completeTest();
+                } else {
+                    // Reset for next attempt
+                    waitingForReaction = false;
+                    reactionArea.className = 'reaction-area';
+                    reactionText.textContent = 'Click to start';
+                    
+                    // Show results
+                    resultsContainer.classList.remove('hidden');
+                }
+            }
+        }
+        
+        // Start waiting for reaction
+        function startWaiting() {
+            // Set waiting state
+            reactionArea.className = 'reaction-area ready';
+            reactionText.textContent = 'Wait for green...';
+            
+            // Random delay between 1 and 5 seconds
+            const delay = Math.floor(Math.random() * 4000) + 1000;
+            
+            // Set timeout to change color
+            timeoutId = setTimeout(() => {
+                // Set reaction state
+                reactionArea.className = 'reaction-area waiting';
+                reactionText.textContent = 'Click now!';
+                
+                // Record start time
+                reactionStartTime = Date.now();
+                waitingForReaction = true;
+            }, delay);
+        }
+        
+        // Add attempt to list
+        function addAttemptToList(time) {
+            const attemptItem = document.createElement('div');
+            attemptItem.className = 'attempt-item';
+            attemptItem.textContent = `${time} ms`;
+            
+            // Highlight best and worst times
+            if (time === bestTime && reactionTimes.length > 1) {
+                attemptItem.classList.add('best');
+            } else if (time === Math.max(...reactionTimes) && reactionTimes.length > 1) {
+                attemptItem.classList.add('worst');
+            }
+            
+            attemptsList.appendChild(attemptItem);
+        }
+        
+        // Update attempts count
+        function updateAttemptsCount() {
+            attemptsCountDisplay.textContent = `${reactionTimes.length}/5`;
+        }
+        
+        // Complete test
+        function completeTest() {
+            // Set completed state
+            gameStarted = false;
+            reactionArea.className = 'reaction-area';
+            reactionText.textContent = 'Test completed!';
+            
+            // Update form values
+            formReactionTime.value = bestTime;
+            formAttempts.value = reactionTimes.length;
+            formAverageTime.value = averageTime;
+            
+            // Show save form
+            saveForm.classList.remove('hidden');
+        }
+    });
+</script>
+{% endblock %}

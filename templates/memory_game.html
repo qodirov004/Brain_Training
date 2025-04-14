@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+
+{% block title %}Memory Game - Brain Training{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Additional styles specific to memory game */
+    .memory-card {
+        position: relative;
+        aspect-ratio: 1;
+        perspective: 1000px;
+        cursor: pointer;
+    }
+    
+    .card-front, .card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        transition: transform 0.6s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        font-size: 2rem;
+    }
+    
+    .card-front {
+        background-color: white;
+        transform: rotateY(180deg);
+    }
+    
+    .card-back {
+        background-color: var(--purple-600);
+        color: white;
+    }
+    
+    .memory-card.flipped .card-front {
+        transform: rotateY(0deg);
+    }
+    
+    .memory-card.flipped .card-back {
+        transform: rotateY(180deg);
+    }
+    
+    .memory-card.matched .card-front {
+        background-color: var(--green-100);
+        border: 2px solid var(--green-300);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<header class="game-header purple-gradient">
+    <div class="container">
+        <div class="game-header-content">
+            <a href="{% url 'games_list' %}" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+            </a>
+            <div>
+                <h1><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg> Memory Game</h1>
+                <p>Karta juftlarini moslashtirish orqali xotirangizni sinab ko'ring va yaxshilang. Eng qisqa vaqt ichida barcha mos juftlarni toping.</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container game-container">
+    <div class="game-controls">
+        <div class="difficulty-controls">
+            <button class="btn btn-purple active" data-difficulty="easy">Oson</button>
+            <button class="btn btn-outline" data-difficulty="medium">O'rtacha</button>
+            <button class="btn btn-outline" data-difficulty="hard">Qiyin</button>
+        </div>
+        <div class="game-stats">
+            <div class="stat-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span id="timer">00:00</span>
+            </div>
+            <div class="stat-box">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                <span id="moves">Moves: 0</span>
+            </div>
+            <button id="start-game" class="btn btn-purple">Boshlash</button>
+        </div>
+    </div>
+
+    <div id="progress-container" class="progress-container hidden">
+        <div class="progress-header">
+            <span>Jarayon</span>
+            <span id="progress-text">0 / 8 pairs</span>
+        </div>
+        <div class="progress-bar">
+            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div id="game-board" class="memory-game-board"></div>
+
+    <div id="welcome-message" class="welcome-message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg>
+        <h2>Memory Game o'yiniga xush kelibsiz!</h2>
+        <p>Karta juftlarini moslashtirish orqali xotirangizni sinab ko'ring va yaxshilang. Qiyinchilik darajasini tanlang va boshlash uchun "Boshlash" tugmasini bosing.</p>
+        <button id="welcome-start" class="btn btn-purple btn-lg">Boshlash</button>
+    </div>
+</main>
+
+<div id="instructions-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Memory Game qanday o'ynaladi</h2>
+            <p>Ushbu klassik kartani moslashtirish o'yini bilan xotirangizni yaxshilang</p>
+        </div>
+        <div class="modal-body">
+            <div class="instruction-item">
+                <div class="instruction-icon purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg>
+                </div>
+                <div>
+                    <h4>Mos juftlarni toping</h4>
+                    <p>Kartochkalarni ag'daring va mos juftlarni toping. Siz ko'rgan kartalarning pozitsiyalarini eslang.</p>
+                </div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-icon purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div>
+                    <h4>Vaqtni sindiring</h4>
+                    <p>O'yinni eng kam vaqt ichida eng kam harakatlar bilan yakunlashga harakat qiling</p>
+                </div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-icon purple">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                </div>
+                <div>
+                    <h4>O'zingizni sinab ko'ring</h4>
+                    <p>Oson qiyinchilikdan boshlang va xotirangiz yaxshilangani sari Qiyin darajaga o'ting</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="start-playing" class="btn btn-purple btn-block">Boshlash</button>
+        </div>
+    </div>
+</div>
+
+<div id="results-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Tabriklaymiz!</h2>
+            <p>Memory Game o'yinini yakunladingiz!</p>
+        </div>
+        <div class="modal-body">
+            <div class="results-container">
+                <h3>Sizning Natijangiz :</h3>
+                <div class="results-grid">
+                    <div class="result-box">
+                        <p>vaqt</p>
+                        <p id="result-time" class="result-value">00:00</p>
+                    </div>
+                    <div class="result-box">
+                        <p>Harakatlar soni</p>
+                        <p id="result-moves" class="result-value">0</p>
+                    </div>
+                    <div class="result-box full-width">
+                        <p>Darajasi</p>
+                        <p id="result-difficulty" class="result-value">Oson</p>
+                    </div>
+                </div>
+            </div>
+            <p class="results-message">O'z balingizni yaxshilay olasizmi? Qayta urinib ko'ring yoki qiyinlik darajasini oshiring!</p>
+            
+            <form action="{% url 'save_memory_score' %}" method="post" class="save-score-form">
+                {% csrf_token %}
+                <input type="hidden" name="game_name" value="Memory Game">
+                <input type="hidden" id="form-time" name="time" value="">
+                <input type="hidden" id="form-moves" name="moves" value="">
+                <input type="hidden" id="form-difficulty" name="difficulty" value="">
+                
+                <div class="modal-footer">
+                    <button type="button" id="play-again" class="btn btn-outline">Yana O'ynash</button>
+                    <button type="button" id="increase-difficulty" class="btn btn-purple">Darajani oshirish</button>
+                    <button type="submit" id="save-score" class="btn btn-purple">Natijalarni saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Game variables
+        let gameStarted = false;
+        let gameCompleted = false;
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let timer = 0;
+        let timerInterval;
+        let difficulty = 'easy';
+        
+        // Card contents based on difficulty
+        const cardContents = {
+            easy: ["🍎", "🍌", "🍇", "🍊", "🍓", "🍉", "🍒", "🥝"],
+            medium: ["🍎", "🍌", "🍇", "🍊", "🍓", "🍉", "🍒", "🥝", "🥭", "🍍", "🍑", "🥥"],
+            hard: ["🍎", "🍌", "🍇", "🍊", "🍓", "🍉", "🍒", "🥝", "🥭", "🍍", "🍑", "🥥", "🥑", "🍐", "🍋", "🍈"]
+        };
+        
+        // DOM elements
+        const gameBoard = document.getElementById('game-board');
+        const startGameBtn = document.getElementById('start-game');
+        const welcomeStartBtn = document.getElementById('welcome-start');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const timerDisplay = document.getElementById('timer');
+        const movesDisplay = document.getElementById('moves');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const progressText = document.getElementById('progress-text');
+        const instructionsModal = document.getElementById('instructions-modal');
+        const startPlayingBtn = document.getElementById('start-playing');
+        const resultsModal = document.getElementById('results-modal');
+        const resultTime = document.getElementById('result-time');
+        const resultMoves = document.getElementById('result-moves');
+        const resultDifficulty = document.getElementById('result-difficulty');
+        const playAgainBtn = document.getElementById('play-again');
+        const increaseDifficultyBtn = document.getElementById('increase-difficulty');
+        const difficultyBtns = document.querySelectorAll('.difficulty-controls button');
+        
+        // Form elements for saving score
+        const formTime = document.getElementById('form-time');
+        const formMoves = document.getElementById('form-moves');
+        const formDifficulty = document.getElementById('form-difficulty');
+        
+        // Show instructions modal on page load
+        instructionsModal.classList.add('show');
+        
+        // Initialize game
+        function initializeGame() {
+            // Clear previous game state
+            gameBoard.innerHTML = '';
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            timer = 0;
+            updateTimer();
+            updateMoves();
+            
+            // Get pairs count based on difficulty
+            const pairsCount = getPairsCount();
+            const selectedContents = cardContents[difficulty].slice(0, pairsCount);
+            
+            // Create pairs of cards
+            let initialCards = [];
+            selectedContents.forEach((content, index) => {
+                initialCards.push({ id: index * 2, content, flipped: false, matched: false });
+                initialCards.push({ id: index * 2 + 1, content, flipped: false, matched: false });
+            });
+            
+            // Shuffle cards
+            initialCards = shuffleArray(initialCards);
+            cards = initialCards;
+            
+            // Create card elements
+            cards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card';
+                cardElement.dataset.id = card.id;
+                
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-front';
+                cardFront.innerHTML = card.content;
+                
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                cardBack.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24a2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path></svg>';
+                
+                cardElement.appendChild(cardFront);
+                cardElement.appendChild(cardBack);
+                gameBoard.appendChild(cardElement);
+                
+                // Add click event
+                cardElement.addEventListener('click', () => handleCardClick(card.id));
+            });
+            
+            // Update game board grid based on difficulty
+            gameBoard.className = `memory-game-board ${getGridClass()}`;
+            
+            // Update progress text
+            progressText.textContent = `${matchedPairs} / ${pairsCount} pairs`;
+            progressBarFill.style.width = '0%';
+            
+            // Show progress container
+            progressContainer.classList.remove('hidden');
+        }
+        
+        // Get number of pairs based on difficulty
+        function getPairsCount() {
+            switch (difficulty) {
+                case 'easy': return 8;
+                case 'medium': return 12;
+                case 'hard': return 16;
+                default: return 8;
+            }
+        }
+        
+        // Get grid class based on difficulty
+        function getGridClass() {
+            switch (difficulty) {
+                case 'easy': return 'grid-4';
+                case 'medium': return 'grid-6';
+                case 'hard': return 'grid-8';
+                default: return 'grid-4';
+            }
+        }
+        
+        // Shuffle array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        // Start game
+        function startGame() {
+            initializeGame();
+            gameStarted = true;
+            gameCompleted = false;
+            welcomeMessage.classList.add('hidden');
+            
+            // Start timer
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timer++;
+                updateTimer();
+            }, 1000);
+            
+            // Update button text
+            startGameBtn.textContent = 'Restart Game';
+        }
+        
+        // Handle card click
+        function handleCardClick(id) {
+            // Ignore if game not started, already flipped, or matched
+            if (!gameStarted || flippedCards.length === 2 || flippedCards.includes(id)) {
+                return;
+            }
+            
+            const card = cards.find(c => c.id === id);
+            if (card.matched) return;
+            
+            // Flip the card
+            const cardElement = document.querySelector(`.memory-card[data-id="${id}"]`);
+            cardElement.classList.add('flipped');
+            
+            // Update card state
+            card.flipped = true;
+            flippedCards.push(id);
+            
+            // Check for match if two cards are flipped
+            if (flippedCards.length === 2) {
+                moves++;
+                updateMoves();
+                
+                const firstCardId = flippedCards[0];
+                const secondCardId = flippedCards[1];
+                
+                const firstCard = cards.find(c => c.id === firstCardId);
+                const secondCard = cards.find(c => c.id === secondCardId);
+                
+                if (firstCard.content === secondCard.content) {
+                    // Match found
+                    setTimeout(() => {
+                        const firstCardElement = document.querySelector(`.memory-card[data-id="${firstCardId}"]`);
+                        const secondCardElement = document.querySelector(`.memory-card[data-id="${secondCardId}"]`);
+                        
+                        firstCardElement.classList.add('matched');
+                        secondCardElement.classList.add('matched');
+                        
+                        firstCard.matched = true;
+                        secondCard.matched = true;
+                        
+                        flippedCards = [];
+                        matchedPairs++;
+                        
+                        // Update progress
+                        updateProgress();
+                        
+                        // Check if game is completed
+                        if (matchedPairs === getPairsCount()) {
+                            gameCompleted = true;
+                            gameStarted = false;
+                            clearInterval(timerInterval);
+                            showResults();
+                        }
+                    }, 500);
+                } else {
+                    // No match
+                    setTimeout(() => {
+                        const firstCardElement = document.querySelector(`.memory-card[data-id="${firstCardId}"]`);
+                        const secondCardElement = document.querySelector(`.memory-card[data-id="${secondCardId}"]`);
+                        
+                        firstCardElement.classList.remove('flipped');
+                        secondCardElement.classList.remove('flipped');
+                        
+                        firstCard.flipped = false;
+                        secondCard.flipped = false;
+                        
+                        flippedCards = [];
+                    }, 1000);
+                }
+            }
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const pairsCount = getPairsCount();
+            const percentage = (matchedPairs / pairsCount) * 100;
+            progressBarFill.style.width = `${percentage}%`;
+            progressText.textContent = `${matchedPairs} / ${pairsCount} pairs`;
+        }
+        
+        // Update timer display
+        function updateTimer() {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update moves display
+        function updateMoves() {
+            movesDisplay.textContent = `Moves: ${moves}`;
+        }
+        
+        // Show results modal
+        function showResults() {
+            resultTime.textContent = timerDisplay.textContent;
+            resultMoves.textContent = moves;
+            resultDifficulty.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            
+            // Update form values for submission
+            formTime.value = timerDisplay.textContent;
+            formMoves.value = moves;
+            formDifficulty.value = difficulty;
+            
+            resultsModal.classList.add('show');
+            
+            // Disable increase difficulty button if already at hard
+            if (difficulty === 'hard') {
+                increaseDifficultyBtn.disabled = true;
+                increaseDifficultyBtn.textContent = 'Maximum Difficulty';
+            } else {
+                increaseDifficultyBtn.disabled = false;
+                increaseDifficultyBtn.textContent = 'Increase Difficulty';
+            }
+        }
+        
+        // Event listeners
+        startGameBtn.addEventListener('click', startGame);
+        welcomeStartBtn.addEventListener('click', startGame);
+        
+        startPlayingBtn.addEventListener('click', () => {
+            instructionsModal.classList.remove('show');
+            startGame();
+        });
+        
+        playAgainBtn.addEventListener('click', () => {
+            resultsModal.classList.remove('show');
+            startGame();
+        });
+        
+        increaseDifficultyBtn.addEventListener('click', () => {
+            resultsModal.classList.remove('show');
+            if (difficulty === 'easy') {
+                difficulty = 'medium';
+                difficultyBtns.forEach(btn => {
+                    btn.classList.remove('active', 'btn-purple');
+                    btn.classList.add('btn-outline');
+                    if (btn.dataset.difficulty === 'medium') {
+                        btn.classList.remove('btn-outline');
+                        btn.classList.add('active', 'btn-purple');
+                    }
+                });
+            } else if (difficulty === 'medium') {
+                difficulty = 'hard';
+                difficultyBtns.forEach(btn => {
+                    btn.classList.remove('active', 'btn-purple');
+                    btn.classList.add('btn-outline');
+                    if (btn.dataset.difficulty === 'hard') {
+                        btn.classList.remove('btn-outline');
+                        btn.classList.add('active', 'btn-purple');
+                    }
+                });
+            }
+            startGame();
+        });
+        
+        // Difficulty buttons
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newDifficulty = btn.dataset.difficulty;
+                if (newDifficulty !== difficulty) {
+                    difficulty = newDifficulty;
+                    difficultyBtns.forEach(b => {
+                        b.classList.remove('active', 'btn-purple');
+                        b.classList.add('btn-outline');
+                    });
+                    btn.classList.remove('btn-outline');
+                    btn.classList.add('active', 'btn-purple');
+                    
+                    if (gameStarted) {
+                        gameStarted = false;
+                        clearInterval(timerInterval);
+                        setTimeout(startGame, 100);
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
