@@ -22,8 +22,12 @@ def games_list(request):
     return render(request, 'games_list.html')
 
 def test_list(request):
-    tests = TestInformation.objects.all()  # objects manager ishlatildi
-    return render(request, 'test_list.html', {'tests': tests})
+    if request.user.is_authenticated:
+        tests = TestInformation.objects.all()  # objects manager ishlatildi
+        return render(request, 'test_list.html', {'tests': tests})
+
+    else:
+        return redirect("login")
 
 def test_detail(request, test_id):
     test = get_object_or_404(TestInformation, id=test_id)
