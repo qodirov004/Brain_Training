@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tests.tes_direction }} testi{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{{ tests.tes_direction }} testi</h1>
+    
+    {% if questions %}
+    <form method="post">
+        {% csrf_token %}
+        {% for question in questions %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Savol {{ forloop.counter }}</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ question.question_text }}</p>
+                <!-- Bu yerda javob variantlari bo'lishi kerak -->
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Testni yakunlash</button>
+    </form>
+    {% else %}
+    <div class="alert alert-warning">
+        Ushbu testda hozircha savollar mavjud emas.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

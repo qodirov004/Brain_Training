@@ -4,7 +4,9 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
-from .models import MemoryGameResult, SpeedMathResult, ReactionTestResult
+from .models import MemoryGameResult, ReactionTestResult, TestInformation, UserResult, Questions, UserAnswer, UserTestTemp
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 
 # Home and general pages
 def home(request):
@@ -18,6 +20,68 @@ def about(request):
 def games_list(request):
     """View for displaying the list of available games"""
     return render(request, 'games_list.html')
+
+def test_list(request):
+    tests = TestInformation.objects.all()  # objects manager ishlatildi
+    return render(request, 'test_list.html', {'tests': tests})
+
+def test_detail(request, test_id):
+    test = get_object_or_404(TestInformation, id=test_id)
+    questions = Questions.objects.filter(test=test)
+    
+    if request.method == 'POST':
+        correct_answers = 0
+        for question in questions:
+            user_answer = request.POST.get(f'question_{question.id}')
+            if user_answer == question.correct:
+                correct_answers += 1
+        
+        total_questions = questions.count()
+        score = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+        wrong_answers = total_questions - correct_answers
+
+        # Foydalanuvchi login bo‘lganini tekshiramiz
+        if request.user.is_authenticated:
+            UserResult.objects.create(
+                user=request.user,
+                test = test, 
+                test_count=total_questions,
+                correct=correct_answers,
+                wrong=wrong_answers,
+                ball=round(score, 2)
+            )
+
+        return render(request, 'test_results.html', {
+            'test': test,
+            'correct_answers': correct_answers,
+            'total_questions': total_questions,
+            'score': round(score, 2),
+        })
+    
+    return render(request, 'test_detail.html', {
+        'test': test,
+        'questions': questions
+    })
+
+def Question(request, id) :
+    tests = get_object_or_404(TestInformation, id = id)
+    questions = Questions.objects.filter(test_direction = tests)
+    
+    context = {
+        "question" : questions,
+        "tests" : tests,
+    }
+    
+    return render(request, "start_test.html", context)
+
+def User_Results(request) :
+    results = UserResult.objects.filter(user=request.user).order_by('-id')[:10]
+    
+    context = {
+        "results" : results,
+    }
+    
+    return render(request, "test_results.html", context)
 
 # User authentication views
 def register_view(request):
@@ -109,14 +173,12 @@ def profile_view(request):
     """View for user profile"""
     # Get user's game results
     memory_results = MemoryGameResult.objects.filter(user=request.user).order_by('-created_at')[:5]
-    speed_math_results = SpeedMathResult.objects.filter(user=request.user).order_by('-created_at')[:5]
     reaction_results = ReactionTestResult.objects.filter(user=request.user).order_by('-created_at')[:5]
+    results = UserResult.objects.filter(user=request.user).order_by('-id')[:10]
     
     # Calculate statistics
     memory_count = MemoryGameResult.objects.filter(user=request.user).count()
-    speed_math_count = SpeedMathResult.objects.filter(user=request.user).count()
     reaction_count = ReactionTestResult.objects.filter(user=request.user).count()
-    total_games = memory_count + speed_math_count + reaction_count
     
     # Handle profile update
     if request.method == 'POST':
@@ -138,12 +200,11 @@ def profile_view(request):
     context = {
         'email': request.user.email,
         'memory_results': memory_results,
-        'speed_math_results': speed_math_results,
         'reaction_results': reaction_results,
         'memory_count': memory_count,
-        'speed_math_count': speed_math_count,
         'reaction_count': reaction_count,
-        'total_games': total_games
+        'user_results': results,
+        'total_tests': results.count(),
     }
     
     return render(request, 'profile.html', context)
@@ -155,14 +216,7 @@ def memory_game(request):
         return render(request, 'memory_game.html')
     else :
         return redirect('login')
-
-def speed_math(request):
-    if request.uuser.is_authenticated:
-        """View for rendering the speed math game page"""
-        return render(request, 'speed_math.html')
-    else :
-        return redirect('login')
-
+    
 def reaction_test(request):
     if request.user.is_authenticated:
         """View for rendering the reaction test game page"""
@@ -173,13 +227,13 @@ def reaction_test(request):
 def game_results_list(request):
     """View for displaying all saved game results"""
     memory_results = MemoryGameResult.objects.all()[:10]
-    speed_math_results = SpeedMathResult.objects.all()[:10]
     reaction_results = ReactionTestResult.objects.all()[:10]
+    user_test_results = UserResult.objects.select_related('user', 'test').all()[:10]
     
     context = {
         'memory_results': memory_results,
-        'speed_math_results': speed_math_results,
-        'reaction_results': reaction_results
+        'reaction_results': reaction_results,
+        'user_test_results' : user_test_results
     }
     
     return render(request, 'game_results_list.html', context)
@@ -280,35 +334,7 @@ def save_speed_math_score(request):
             errors.append('Operation type is required')
         elif operation not in ['addition', 'subtraction', 'multiplication', 'division', 'mixed']:
             errors.append('Invalid operation type')
-        
-        # If there are validation errors
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-            return redirect('speed_math')
-        
-        # Save the data to the database
-        try:
-            result = SpeedMathResult(
-                game_name=game_name,
-                score=score,
-                correct_answers=correct_answers,
-                incorrect_answers=incorrect_answers,
-                accuracy=accuracy,
-                difficulty=difficulty,
-                operation=operation
-            )
-            
-            # Associate with user if logged in
-            if request.user.is_authenticated:
-                result.user = request.user
-                
-            result.save()
-            messages.success(request, 'Your score has been saved successfully!')
-            return redirect('game_results_list')
-        except Exception as e:
-            messages.error(request, f'Error saving your score: {str(e)}')
-            return redirect('speed_math')
+    
 
 @require_POST
 def save_reaction_test(request):

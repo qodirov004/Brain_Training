@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>  
+  /* Sahifa uchun asosiy flexbox sozlamalari */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* Header va footerni joylashtirish */
+  header {
+    flex-shrink: 0;
+  }
+
+  footer {
+    flex-shrink: 0;
+  }
+
+  /* Kontentni markazlashtirish va bo'sh joyni to'ldirish */
+  .content {
+    height: 75vh;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Main container styles */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  /* Card styling */
+  .card {
+    border-radius: 10px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+  }
+  
+  .shadow {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Heading styles */
+  h2 {
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+  }
+  
+  /* Text styling */
+  p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    color: #555;
+  }
+  
+  p strong {
+    color: #333;
+    font-weight: 600;
+  }
+  
+  /* Alert styling */
+  .alert {
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+  
+  .alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+  
+  .alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+  }
+  
+  /* Button styling */
+  .btn {
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease-in-out;
+    text-decoration: none;
+  }
+  
+  .btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+  }
+  
+  /* Spacing utilities */
+  .mt-3 {
+    margin-top: 1rem;
+  }
+  
+  .mt-4 {
+    margin-top: 1.5rem;
+  }
+  
+  .mt-5 {
+    margin-top: 3rem;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .p-4 {
+    padding: 1.5rem;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .card {
+      padding: 15px;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+    }
+    
+    .btn {
+      display: block;
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    h2 {
+      font-size: 1.3rem;
+    }
+    
+    p {
+      font-size: 0.95rem;
+    }
+    
+    .alert {
+      padding: 10px;
+      font-size: 0.95rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <div class="card shadow p-4">
+    <h2 class="mb-4">Test natijalari</h2>
+
+    <p><strong>Test nomi:</strong> {{ test.tes_direction }}</p>
+    <p><strong>Jami savollar:</strong> {{ total_questions }}</p>
+    <p><strong>To'g'ri javoblar:</strong> {{ correct_answers }}</p>
+    <p><strong>Xato javoblar:</strong> {{ results.wrong|default:0 }}</p>
+    <p><strong>Ball:</strong> {{ score }}%</p>
+
+    {% if score >= 70 %}
+      <div class="alert alert-success mt-3">
+        ✅ Tabriklaymiz! Siz testdan muvaffaqiyatli o'tdingiz!
+      </div>
+    {% else %}
+      <div class="alert alert-warning mt-3">
+        ⚠️ Afsuski, sizga biroz ko‘proq mashq qilish kerak.
+      </div>
+    {% endif %}
+
+    <a href="{% url 'test_list' %}" class="btn btn-primary mt-4">🔙 Boshqa testlarga qaytish</a>
+  </div>
+</div>
+{% endblock %}

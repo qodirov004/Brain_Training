@@ -64,10 +64,6 @@
                             <p class="stat-number">{{ memory_count }}</p>
                         </div>
                         <div class="stat-box">
-                            <h4>Speed Math</h4>
-                            <p class="stat-number">{{ speed_math_count }}</p>
-                        </div>
-                        <div class="stat-box">
                             <h4>Reaction Tests</h4>
                             <p class="stat-number">{{ reaction_count }}</p>
                         </div>
@@ -111,37 +107,49 @@
                 </div>
             </div>
             
-            <div class="results-card">
-                <div class="results-card-header">
-                    <h3>Speed Math</h3>
-                </div>
-                <div class="results-card-body">
-                    {% if speed_math_results %}
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Ball</th>
-                                <th>Aniqlik</th>
-                                <th>Daraja</th>
-                                <th>Amal</th>
-                                <th>Sana</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in speed_math_results %}
-                            <tr>
-                                <td>{{ result.score }}</td>
-                                <td>{{ result.accuracy }}%</td>
-                                <td>{{ result.difficulty|title }}</td>
-                                <td>{{ result.operation|title }}</td>
-                                <td>{{ result.created_at|date:"M d, Y H:i" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <p class="no-results">Speed Math natijalari hali mavjud emas. <a href="{% url 'speed_math' %}">Hoziroq o'yinni boshlang!</a></p>
-                    {% endif %}
+            <div class="container py-5">
+                <h1 class="mb-4">Informatika test natijalari</h1>
+                
+                <div class="results-card">
+                    <div class="results-card-header">
+                        <h3>Test Natijalari</h3>
+                        <div class="stats">
+                            <span class="stat-item">
+                                <i class="bi bi-check-circle"></i> Jami testlar: {{ total_tests }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="results-card-body">
+                        {% if user_results %}
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Testlar soni</th>
+                                    <th>To'g'ri javoblar</th>
+                                    <th>Xato javoblar</th>
+                                    <th>Ball</th>
+                                    <th>Sana</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in user_results %}
+                                <tr>
+                                    <td>{{ result.test_count }}</td>
+                                    <td class="text-success">{{ result.correct }}</td>
+                                    <td class="text-danger">{{ result.wrong }}</td>
+                                    <td><strong>{{ result.ball }}</strong></td>
+                                    <td>{{ result.created_at|date:"d.m.Y H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Sizda hali test natijalari mavjud emas. 
+                            <a href="{% url 'test_list' %}" class="alert-link">Testni boshlash</a>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             

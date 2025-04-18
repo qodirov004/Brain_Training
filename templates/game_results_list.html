@@ -7,7 +7,11 @@
     <div class="container">
         <div class="game-header-content">
             <a href="{% url 'games_list' %}" class="back-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 19-7-7 7-7"></path>
+                    <path d="M19 12H5"></path>
+                </svg>
             </a>
             <div>
                 <h1>O'yin Natijalari</h1>
@@ -56,43 +60,48 @@
             </table>
         </div>
         {% else %}
-        <p>O'yin natijalari topilmadi. <a href="{% url 'memory_game' %}">Memory Game o'yinini o'ynash</a> natijalaringizni shu yerda ko'ring!</p>
+        <p>O'yin natijalari topilmadi. <a href="{% url 'memory_game' %}">Memory Game o'yinini o'ynash</a>
+            natijalaringizni shu yerda ko'ring!</p>
         {% endif %}
     </div>
-    
-    <div class="results-section">
-        <h2>Speed Math Natijalari</h2>
-        {% if speed_math_results %}
-        <div class="results-table">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Foydalanuvchi</th>
-                        <th>Ball</th>
-                        <th>Aniqlik</th>
-                        <th>Qiyinligi</th>
-                        <th>Amal</th>
-                        <th>Sana</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for result in speed_math_results %}
-                    <tr>
-                        <td>{% if result.user %}{{ result.user.username }}{% else %}Anonymous{% endif %}</td>
-                        <td>{{ result.score }}</td>
-                        <td>{{ result.accuracy }}%</td>
-                        <td>{{ result.difficulty|title }}</td>
-                        <td>{{ result.operation|title }}</td>
-                        <td>{{ result.created_at|date:"M d, Y H:i" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+    <div class="container py-5">
+        <h1 class="mb-4">Informatika test natijalari</h1>
+
+        <div class="results-section mt-5">
+            <h2>Test Natijalari</h2>
+            {% if user_test_results %}
+            <div class="results-table">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Foydalanuvchi</th>
+                            <th>Test nomi</th>
+                            <th>To‘g‘ri javoblar</th>
+                            <th>Xato javoblar</th>
+                            <th>Jami savollar</th>
+                            <th>Ball</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in user_test_results %}
+                        <tr>
+                            <td>{{ result.user.username }}</td>
+                            <td>{{ result.test.tes_direction}}</td>
+                            <td>{{ result.correct }}</td>
+                            <td>{{ result.wrong }}</td>
+                            <td>{{ result.test_count }}</td>
+                            <td>{{ result.ball }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>Test natijalari mavjud emas.</p>
+            {% endif %}
         </div>
-        {% else %}
-        <p>O'yin natijalari topilmadi. <a href="{% url 'speed_math' %}">Speed Math o'yinini o'ynash</a>natijalaringizni shu yerda ko'ring!</p>
-        {% endif %}
-    </div>
+        
 
     <div class="results-section">
         <h2>Reaction Test Natijalari</h2>
@@ -122,7 +131,8 @@
             </table>
         </div>
         {% else %}
-        <p>O'yin natijalari ropilmadi. <a href="{% url 'reaction_test' %}">Reaction Test o'yinini sian ko'ring!</a> natijalaringizni shu yerda ko'ring!</p>
+        <p>O'yin natijalari ropilmadi. <a href="{% url 'reaction_test' %}">Reaction Test o'yinini sian ko'ring!</a>
+            natijalaringizni shu yerda ko'ring!</p>
         {% endif %}
     </div>
 </main>
