@@ -232,7 +232,8 @@ def game_results_list(request):
     """View for displaying all saved game results"""
     memory_results = MemoryGameResult.objects.all()[:10]
     reaction_results = ReactionTestResult.objects.all()[:10]
-    user_test_results = UserResult.objects.select_related('user', 'test').all()[:10]
+    user_test_results = UserResult.objects.select_related('user', 'test') \
+        .order_by('-ball')[:10]  # '-' belgisi kamayish tartibini bildiradi
     
     context = {
         'memory_results': memory_results,
