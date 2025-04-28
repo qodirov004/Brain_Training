@@ -1,6 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from .models import MemoryGameResult, ReactionTestResult, UserTestTemp, TestInformation, UserAnswer, UserResult, Questions
+from .models import MemoryGameResult, ReactionTestResult, TestInformation, UserResult, Questions, Presentation
 from django import forms
 from docx import Document
 from django.core.files.base import ContentFile
@@ -46,3 +46,8 @@ class ReactionTestResultAdmin(ModelAdmin):
 admin.site.register(MemoryGameResult, MemoryGameResultAdmin)
 admin.site.register(ReactionTestResult, ReactionTestResultAdmin)
 
+@admin.register(Presentation)
+class PresentetionAdmin(ModelAdmin) :
+    list_display = ["title", "description", "file", "created_at"]
+    list_filter = ["title", "created_at"]
+    search_fields = ["title", "description"]

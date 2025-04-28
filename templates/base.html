@@ -29,6 +29,7 @@
                             <a href="{% url 'games_list' %}" class="nav-link">O'yinlar</a>
                             <a href="{% url 'game_results_list' %}" class="nav-link">Natijalar</a>
                             <a href="{% url 'about' %}" class="nav-link">Haqida</a>
+                            <a href="{% url 'presentation_list' %}">Taqdimotlar</a>
                             {% if user.is_authenticated %}
                                 <a href="{% url 'profile' %}" class="nav-link">Kabinet</a>
                                 <a href="{% url 'logout' %}" class="nav-link">Chiqish</a>

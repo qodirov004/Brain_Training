@@ -21,8 +21,11 @@ urlpatterns = [
     path('games/results/', views.game_results_list, name='game_results_list'),
     
     path('tests/', views.test_list, name='test_list'),
-     path('test/<int:test_id>/', views.test_detail, name='test_detail'),
+    path('test/<int:test_id>/', views.test_detail, name='test_detail'),
     
+    #Presentation
+    path('presentation/', views.presentation_list, name='presentation_list'),
+    path('presentation/<int:presentation_id>/', views.presentation_download, name='presentation_download'),
     
     # Game score saving
     path('games/save-memory-score/', views.save_memory_score, name='save_memory_score'),

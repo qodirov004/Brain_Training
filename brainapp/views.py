@@ -4,8 +4,10 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
-from .models import MemoryGameResult, ReactionTestResult, TestInformation, UserResult, Questions, UserAnswer, UserTestTemp
+from .models import MemoryGameResult, ReactionTestResult, TestInformation, UserResult, Questions, Presentation
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import FileResponse, Http404
+import os
 from django.utils import timezone
 
 # Home and general pages
@@ -392,3 +394,24 @@ def save_reaction_test(request):
         except Exception as e:
             messages.error(request, f'Error saving your result: {str(e)}')
             return redirect('reaction_test')
+
+def presentation_list(request) :
+    presentations = Presentation.objects.all()
+    
+    context = {
+        "presentations" : presentations
+    }
+    
+    return render(request, "presentation.html", context)
+
+def presentation_download(request, presentation_id):
+    if request.user.is_authenticated:
+        try :
+            presentations = get_object_or_404(Presentation, id=presentation_id)
+            filepath = presentations.file.path
+            return FileResponse(open(filepath, 'rb'), as_attachment=True, filename=os.path.basename(filepath))
+        except Presentation.DoesNotExist:
+            raise Http404("Fayl topilmadi")
+    else : 
+        return redirect("login")
+     

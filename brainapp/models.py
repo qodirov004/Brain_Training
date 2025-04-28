@@ -116,3 +116,16 @@ class UserResult(models.Model):
     class Meta:
         verbose_name = "Foydalanuvchilar natijalari"
         verbose_name_plural = verbose_name
+        
+class Presentation(models.Model) :
+    title = models.CharField(max_length=255, verbose_name="Sarlavha")
+    description = models.TextField(verbose_name="Tavsif")
+    file = models.FileField(upload_to="presentations/", verbose_name="Fayl")
+    created_at = models.DateField(auto_now_add=True, verbose_name="Yaratilgan vaqt")
+    
+    class Meta : 
+        verbose_name = "Prezentatsiya"
+        verbose_name_plural = "Prezentatsiyalar"
+        
+    def __str__(self):
+        return self.title
